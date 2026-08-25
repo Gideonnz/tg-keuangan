@@ -1,4 +1,5 @@
 import os
+from dotenv import load_dotenv
 from telegram import Update
 from telegram.ext import (
     Application,
@@ -14,6 +15,7 @@ from database import (
 
 from excel_export import buat_excel
 
+load_dotenv()
 TOKEN = os.getenv("BOT_TOKEN")
 
 async def start(update: Update, context):
