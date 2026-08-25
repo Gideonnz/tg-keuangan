@@ -4,7 +4,7 @@ from Finance import GEMINI_API_KEY as GEMINI_KEY
 
 
 genai.configure(
-  api_key=GEMINI_KEY)
+  api_key=GEMINI_KEY
 )
 
 
