@@ -3,7 +3,7 @@ from telethon import events, Button
 from Finance import client
 from Finance.status import user
 from Finance.modules.plugins.gemini import baca_transaksi_dokumen 
-from Finance.database.transaksi import tambah_transaksi 
+from Finance.database.transaksi_db import tambah_transaksi 
 
 transaksi_pending = {}
 
