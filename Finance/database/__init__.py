@@ -26,8 +26,9 @@ def buat_database():
 
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS pengaturan (
-        id INTEGER PRIMARY KEY,
-        saldo_awal INTEGER
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER UNIQUE,
+    saldo_awal INTEGER
     )
     """)
 
