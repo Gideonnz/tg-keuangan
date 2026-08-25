@@ -48,7 +48,7 @@ Rp {saldo:,}
 
 async def tampilkan_semua(event, index, data):
     
-  total = len(data)
+    total = len(data)
 
 
     teks = format_transaksi(
@@ -85,6 +85,7 @@ async def tampilkan_semua(event, index, data):
               "⬅️ Sebelumnya",
               data=f"prev_{index}".encode()
             )
+        )
 
 
     if index < total - 1:
@@ -94,6 +95,7 @@ async def tampilkan_semua(event, index, data):
               "➡️ Berikutnya",
               data=f"next_{index}".encode()
             )
+        )
 
 
     if navigasi:
