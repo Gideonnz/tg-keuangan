@@ -23,24 +23,32 @@ async def file_transaksi(event):
     try:
         hasil = await asyncio.to_thread(baca_transaksi_dokumen, file_path)
 
-        if "error" in hasil:
+        if isinstance(hasil, dict) and "error" in hasil:
             await event.reply(f"❌ Gagal memproses file: {hasil['error']}")
+            return
+
+        if not hasil or len(hasil) == 0:
+            await event.reply("❌ Tidak ada data transaksi yang ditemukan.")
             return
 
         transaksi_pending[event.sender_id] = hasil
 
+        pesan = f"🔎 **Ditemukan {len(hasil)} transaksi:**\n\n"
+        
+        total_nominal = 0
+        for i, item in enumerate(hasil, 1):
+            nominal = int(item.get('nominal', 0))
+            total_nominal += nominal
+            pesan += f"{i}. [{item.get('tipe', '-')}] {item.get('keterangan', '-')} — Rp {nominal:,}\n"
+
+        pesan += f"\n**Total Nominal:** Rp {total_nominal:,}"
+        pesan += "\n\nSimpan SEMUA transaksi ini?"
+
         await event.reply(
-            f"""🔎 Hasil pembacaan AI:
-
-Jenis: {hasil.get('tipe', '-')}
-Kategori: {hasil.get('kategori', '-')}
-Nominal: Rp {int(hasil.get('nominal', 0)):,}
-Keterangan: {hasil.get('keterangan', '-')}
-
-Simpan transaksi ini?""",
+            pesan,
             buttons=[
                 [
-                    Button.inline("✅ Simpan", b"simpan"),
+                    Button.inline(f"✅ Simpan Semua ({len(hasil)})", b"simpan"),
                     Button.inline("❌ Batal", b"batal")
                 ]
             ]
@@ -50,7 +58,6 @@ Simpan transaksi ini?""",
         await event.reply(f"❌ Terjadi kesalahan: {e}")
     
     finally:
-        
         if os.path.exists(file_path):
             os.remove(file_path)
 
@@ -61,26 +68,28 @@ async def simpan(event):
         await event.answer("Tidak ada transaksi pending", alert=True)
         return
 
-    data = transaksi_pending[event.sender_id]
+    daftar_transaksi = transaksi_pending[event.sender_id]
+    saldo_akhir = 0
+    jumlah_sukses = 0
 
-    saldo = tambah_transaksi(
-        data["tipe"],
-        data["kategori"],
-        int(data["nominal"]),
-        data["keterangan"]
-    )
+    for item in daftar_transaksi:
+        try:
+            saldo_akhir = tambah_transaksi(
+                item.get("tipe", "KELUAR"),
+                item.get("kategori", "Umum"),
+                int(item.get("nominal", 0)),
+                item.get("keterangan", "-")
+            )
+            jumlah_sukses += 1
+        except Exception as e:
+            print(f"Gagal menyimpan 1 transaksi: {e}")
 
     del transaksi_pending[event.sender_id]
 
     await event.edit(
-        f"""✅ Transaksi berhasil disimpan.
+        f"""✅ **{jumlah_sukses} transaksi berhasil disimpan ke database!**
 
-Jenis: {data['tipe']}
-Kategori: {data['kategori']}
-Nominal: Rp {int(data['nominal']):,}
-Keterangan: {data['keterangan']}
-
-Saldo sekarang: Rp {saldo:,}"""
+**Saldo sekarang:** Rp {saldo_akhir:,}"""
     )
 
 
