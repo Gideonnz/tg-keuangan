@@ -3,6 +3,7 @@ from . import koneksi
 from .saldo import saldo_sekarang, hitung_ulang_saldo
 
 def tambah_transaksi(
+    user_id,
     tipe,
     kategori,
     nominal,
@@ -32,6 +33,7 @@ def tambah_transaksi(
     cursor.execute("""
     INSERT INTO transaksi
     (
+    user_id,
     tanggal,
     tipe,
     kategori,
@@ -42,6 +44,7 @@ def tambah_transaksi(
     VALUES (?,?,?,?,?,?)
     """,
     (
+        user_id,
         tanggal,
         tipe,
         kategori,
