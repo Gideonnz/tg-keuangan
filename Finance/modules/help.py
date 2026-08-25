@@ -1,4 +1,5 @@
 from Finance import client
+from Finace.status import user
 from telethon import events, Button
 
 HELP_TEXT1 = """
