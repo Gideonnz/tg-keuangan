@@ -1,5 +1,6 @@
 import logging
 from Finance import client
+from Finance.database import buat_database
 
 logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s',
                     level=logging.INFO)
