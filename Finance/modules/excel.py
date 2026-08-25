@@ -4,13 +4,13 @@ from Finance import client
 from Finance.status import user
 from Finance.database.transaksi_db import semua_transaksi
 
-def buat_excel():
+def buat_excel(user_id):
 
-    data = semua_transaksi()
+    data = semua_transaksi(user_id)
 
     df = pd.DataFrame(
         data,
-        columns=["Tanggal", "Tipe", "Kategori", "Nominal", "Keterangan"
+        columns=["ID", "Tanggal", "Tipe", "Kategori", "Nominal", "Keterangan"
         ]
     )
 
@@ -26,7 +26,7 @@ async def excel(event):
     if not user(event):
         return
 
-    file = buat_excel()
+    file = buat_excel(event.sender_id)
     await client.send_file(
         event.chat_id,
         file,
