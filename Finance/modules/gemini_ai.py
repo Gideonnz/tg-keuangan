@@ -1,26 +1,30 @@
-import asyncio
+import asyncio, os
 from telethon import events, Button
 from Finance import client
 from Finance.status import user
-from Finance.modules.plugins.gemini import baca_transaksi_gambar
+from Finance.modules.plugins.gemini import baca_transaksi_dokumen 
 from Finance.database.transaksi import tambah_transaksi 
 
 transaksi_pending = {}
 
-@client.on(events.NewMessage(func=lambda e: e.photo))
-async def foto_transaksi(event):
+@client.on(events.NewMessage(func=lambda e: e.photo or e.document))
+async def file_transaksi(event):
     if not user(event):
         return
 
-    await event.reply("🔎 Membaca bukti transaksi...")
+    await event.reply("🔎 Membaca dokumen/bukti transaksi...")
 
-    file = await event.download_media(file="bukti.jpg")
+    file_path = await event.download_media()
+    
+    if not file_path:
+        await event.reply("❌ Gagal mengunduh file.")
+        return
 
     try:
-        hasil = await asyncio.to_thread(baca_transaksi_gambar, file)
+        hasil = await asyncio.to_thread(baca_transaksi_dokumen, file_path)
 
         if "error" in hasil:
-            await event.reply(f"❌ Gagal memproses gambar: {hasil['error']}")
+            await event.reply(f"❌ Gagal memproses file: {hasil['error']}")
             return
 
         transaksi_pending[event.sender_id] = hasil
@@ -43,7 +47,12 @@ Simpan transaksi ini?""",
         )
 
     except Exception as e:
-        await event.reply(f"Gagal membaca gambar: {e}")
+        await event.reply(f"❌ Terjadi kesalahan: {e}")
+    
+    finally:
+        
+        if os.path.exists(file_path):
+            os.remove(file_path)
 
 
 @client.on(events.CallbackQuery(data=b"simpan"))
