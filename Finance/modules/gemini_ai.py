@@ -75,6 +75,7 @@ async def simpan(event):
     for item in daftar_transaksi:
         try:
             saldo_akhir = tambah_transaksi(
+                event.sender_id,
                 item.get("tipe", "KELUAR"),
                 item.get("kategori", "Umum"),
                 int(item.get("nominal", 0)),
