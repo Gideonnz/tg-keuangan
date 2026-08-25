@@ -46,9 +46,9 @@ async def reset(event):
 async def breset2(event):
     reset_data()
 
-    await event.reply("✅ Semua riwayat transaksi berhasil dihapus.")
+    await event.edit("✅ Semua riwayat transaksi berhasil dihapus.")
 
 @client.on(events.CallbackQuery(data="bbatal2"))
 async def bbatal2(event):
 
-    await event.reply("Aksi telah dibatalkan.")
+    await event.edit("Aksi telah dibatalkan.")
