@@ -13,6 +13,7 @@ def buat_database():
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS transaksi (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
         tanggal TEXT,
         tipe TEXT,
         kategori TEXT,
