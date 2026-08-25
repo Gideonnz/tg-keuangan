@@ -3,7 +3,7 @@ from Finance.database.transaksi_db import tambah_transaksi
 
 
 
-async def simpan(event, tipe):
+async def simpan(event, user_id, tipe):
 
     try:
 
