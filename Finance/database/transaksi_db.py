@@ -2,32 +2,18 @@ from datetime import datetime
 from . import koneksi
 from .saldo_db import saldo_sekarang, hitung_ulang_saldo
 
-def tambah_transaksi(
-    user_id,
-    tipe,
-    kategori,
-    nominal,
-    keterangan
-):
-
+def tambah_transaksi(user_id, tipe, kategori, nominal, keterangan):
     conn = koneksi()
     cursor = conn.cursor()
 
-
-    saldo = saldo_sekarang()
-
+    saldo = saldo_sekarang(user_id) 
 
     if tipe == "MASUK":
         saldo += nominal
-
     else:
         saldo -= nominal
 
-
-
-    tanggal = datetime.now().strftime(
-        "%Y-%m-%d %H:%M:%S"
-    )
+    tanggal = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 
     cursor.execute("""
@@ -41,7 +27,7 @@ def tambah_transaksi(
     keterangan,
     saldo_setelah
     )
-    VALUES (?,?,?,?,?,?)
+    VALUES (?,?,?,?,?,?,?)
     """,
     (
         user_id,
@@ -89,7 +75,7 @@ def cek_transaksi(id_transaksi):
 
 
 
-def semua_transaksi():
+def semua_transaksi(user_id):
 
     conn = koneksi()
     cursor = conn.cursor()
@@ -106,12 +92,7 @@ def semua_transaksi():
     FROM transaksi
     WHERE user_id=?
     ORDER BY id ASC
-    """)
-
-    cursor.execute(
-    query,
-    (user_id,)
-    )
+    """, (user_id,))
 
     data = cursor.fetchall()
 
