@@ -76,7 +76,7 @@ def cek_transaksi(id_transaksi):
         keterangan,
         saldo_setelah
     FROM transaksi
-    WHERE id=?
+    WHERE id=? AND user_id=?
     """,
     (id_transaksi,))
 
@@ -104,8 +104,14 @@ def semua_transaksi():
         keterangan,
         saldo_setelah
     FROM transaksi
+    WHERE user_id=?
     ORDER BY id ASC
     """)
+
+    cursor.execute(
+    query,
+    (user_id,)
+    )
 
     data = cursor.fetchall()
 
@@ -121,7 +127,7 @@ def hapus_transaksi(id_transaksi):
 
     cursor.execute("""
     DELETE FROM transaksi
-    WHERE id=?
+    WHERE id=? AND user_id=?
     """,
     (
         id_transaksi,
@@ -180,7 +186,7 @@ def edit_transaksi(
         kategori=?,
         nominal=?,
         keterangan=?
-    WHERE id=?
+    WHERE id=? AND user_id=?
     """,
     (
         tipe,
