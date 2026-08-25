@@ -1,6 +1,6 @@
 from datetime import datetime
 from . import koneksi
-from .saldo import saldo_sekarang
+from .saldo import saldo_sekarang, hitung_ulang_saldo
 
 def tambah_transaksi(
     tipe,
@@ -81,13 +81,13 @@ def hapus_transaksi(id_transaksi):
     cursor = conn.cursor()
 
 
-    cursor.execute(
-        """
-        DELETE FROM transaksi
-        WHERE id=?
-        """,
-        (id_transaksi,)
-    )
+    cursor.execute("""
+    DELETE FROM transaksi
+    WHERE id=?
+    """,
+    (
+        id_transaksi,
+    ))
 
 
     berhasil = cursor.rowcount > 0
@@ -97,35 +97,11 @@ def hapus_transaksi(id_transaksi):
     conn.close()
 
 
+    if berhasil:
+        hitung_ulang_saldo()
+
+
     return berhasil
-
-
-
-def cek_transaksi(id_transaksi):
-
-    conn = koneksi()
-    cursor = conn.cursor()
-
-    cursor.execute("""
-    SELECT
-        id,
-        tanggal,
-        tipe,
-        kategori,
-        nominal,
-        keterangan,
-        saldo_setelah
-    FROM transaksi
-    WHERE id=?
-    """,
-    (id_transaksi,))
-
-
-    data = cursor.fetchone()
-
-    conn.close()
-
-    return data
 
 
 def total_transaksi():
