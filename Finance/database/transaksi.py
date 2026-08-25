@@ -122,3 +122,29 @@ def total_transaksi():
     conn.close()
 
     return total
+
+def semua_transaksi():
+
+    conn = koneksi()
+    cursor = conn.cursor()
+
+
+    cursor.execute("""
+    SELECT
+        id,
+        tanggal,
+        tipe,
+        kategori,
+        nominal,
+        keterangan,
+        saldo_setelah
+    FROM transaksi
+    ORDER BY id ASC
+    """)
+
+
+    data = cursor.fetchall()
+
+    conn.close()
+
+    return data
