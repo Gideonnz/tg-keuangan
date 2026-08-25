@@ -10,7 +10,7 @@ def buat_excel(user_id):
 
     df = pd.DataFrame(
         data,
-        columns=["ID", "Tanggal", "Tipe", "Kategori", "Nominal", "Keterangan"
+        columns=["ID", "Tanggal", "Tipe", "Kategori", "Nominal", "Keterangan", "Saldo Setelah"
         ]
     )
 
