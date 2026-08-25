@@ -5,6 +5,7 @@ from telethon import TelegramClient
 load_dotenv()
 
 TOKEN = os.getenv("BOT_TOKEN")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 USER_ID = int(os.getenv("USER_ID"))
 client = TelegramClient(
     "tgbot",
