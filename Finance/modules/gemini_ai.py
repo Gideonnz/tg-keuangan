@@ -78,13 +78,13 @@ async def simpan(event):
         data["kategori"],
         int(data["nominal"]),
         data["keterangan"]
-     )
+    )
 
 
-     del transaksi_pending[event.sender_id]
+    del transaksi_pending[event.sender_id]
 
 
-     await event.edit(
+    await event.edit(
 f"""
 ✅ Transaksi berhasil disimpan.
 
