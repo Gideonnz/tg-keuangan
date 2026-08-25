@@ -1,30 +1,30 @@
 from . import koneksi
 
-def atur_saldo_awal(nominal):
+def atur_saldo_awal(user_id, nominal):
 
     conn = koneksi()
     cursor = conn.cursor()
 
 
-    cursor.execute(
-        "DELETE FROM pengaturan"
-    )
-
-
     cursor.execute("""
     INSERT INTO pengaturan
-    (id, saldo_awal)
-    VALUES (1, ?)
+    (user_id, saldo_awal)
+    VALUES (?, ?)
+
+    ON CONFLICT(user_id)
+    DO UPDATE SET saldo_awal=excluded.saldo_awal
     """,
-    (nominal,)
-    )
+    (
+        user_id,
+        nominal
+    ))
 
 
     conn.commit()
     conn.close()
 
 
-def saldo_sekarang():
+def saldo_sekarang(user_id):
 
     conn = koneksi()
     cursor = conn.cursor()
@@ -33,8 +33,11 @@ def saldo_sekarang():
     cursor.execute("""
     SELECT saldo_awal
     FROM pengaturan
-    WHERE id=1
-    """)
+    WHERE user_id=?
+    """,
+    (
+        user_id,
+    ))
 
     data = cursor.fetchone()
 
@@ -48,9 +51,13 @@ def saldo_sekarang():
     cursor.execute("""
     SELECT saldo_setelah
     FROM transaksi
-    ORDER BY id DESC
+    WHERE user_id=?
+    ORDER BY tanggal DESC, id DESC
     LIMIT 1
-    """)
+    """,
+    (
+        user_id,
+    ))
 
 
     terakhir = cursor.fetchone()
@@ -65,7 +72,7 @@ def saldo_sekarang():
     return saldo_awal
 
 
-def hitung_ulang_saldo():
+def hitung_ulang_saldo(user_id):
 
     conn = koneksi()
     cursor = conn.cursor()
@@ -75,8 +82,11 @@ def hitung_ulang_saldo():
     cursor.execute("""
     SELECT saldo_awal
     FROM pengaturan
-    WHERE id=1
-    """)
+    WHERE user_id=?
+    """,
+    (
+        user_id,
+    ))
 
     data = cursor.fetchone()
 
@@ -90,14 +100,18 @@ def hitung_ulang_saldo():
     cursor.execute("""
     SELECT id, tipe, nominal
     FROM transaksi
-    ORDER BY id ASC
-    """)
+    WHERE user_id=?
+    ORDER BY tanggal ASC, id ASC
+    """,
+    (
+        user_id,
+    ))
 
 
     transaksi = cursor.fetchall()
 
 
-    for id, tipe, nominal in transaksi:
+    for transaksi_id, tipe, nominal in transaksi:
 
         if tipe == "MASUK":
             saldo += nominal
@@ -109,13 +123,16 @@ def hitung_ulang_saldo():
         cursor.execute("""
         UPDATE transaksi
         SET saldo_setelah=?
-        WHERE id=?
+        WHERE id=? AND user_id=?
         """,
         (
             saldo,
-            id
+            transaksi_id,
+            user_id
         ))
 
 
     conn.commit()
     conn.close()
+
+    return saldo
