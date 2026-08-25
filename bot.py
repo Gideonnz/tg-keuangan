@@ -1,11 +1,7 @@
 import os
-from functools import wraps
-from telegram import Update
-from telegram.ext import (
-    Application,
-    CommandHandler,
-    ContextTypes
-)
+from dotenv import load_dotenv
+
+from telethon import TelegramClient, events, Button
 
 from database import (
     buat_database,
@@ -15,94 +11,132 @@ from database import (
 
 from excel_export import buat_excel
 
+
+load_dotenv()
+
 TOKEN = os.getenv("BOT_TOKEN")
 USER_ID = int(os.getenv("USER_ID"))
+client = TelegramClient(
+    "tgbot",
+    api_id=6,
+    api_hash="eb06d4abfb49dc3eeb1aeb98ae0f581e",
+    ).start(bot_token=TOKEN
+)
 
-def user(func):
+# -------------------------------------------------
 
-    @wraps(func)
-    async def wrapper(update, context):
+START_TEXT = """
+**Hi [{}](tg://user?id={})!**
 
-        if update.effective_user.id != USER_ID:
+Aku adalah Bot Pencatat Keuangan Kamu
+Saya Bisa Mencatat Pengeluaran dan Pemasukan Anda Hanya Dari Ketikan.
 
-            await update.message.reply_text(
-                "🚫 Akses Ditolak."
-            )
+Klik Tombol Di Bawah Ini Untuk Menu Bantuan.
+"""
 
-            return
+HELP_TEXT = """
+Daftar Perintah:
 
-        return await func(update, context)
+/in nominal kategori keterangan
+Mencatat pemasukan.
 
-    return wrapper
-
-@user
-async def start(update: Update, context):
-
-    await update.message.reply_text(
-        """
-Halo! Saya Bot Keuangan Pribadi.
-Saya akan Mencatat Pemasukan dan Pengeluaran Anda.
-
-Ketik /help Untuk Melihat Perintah Yang Ada.
-        """
-    )
-
-@user
-async def help(update: Update, context):
-
-    await update.message.reply_text(
-        """
-Perintah:
-
-/masuk nominal kategori keterangan
-Contoh:
- /masuk 1000000 Gaji Gaji bulanan
-
-/keluar nominal kategori keterangan
-Contoh:
- /keluar 50000 Makanan Makan siang
+/out nominal kategori keterangan
+Mencatat pengeluaran.
 
 /laporan
-Melihat saldo bulan ini
+Berisi laporan keuangan selama sebulan.
 
-/rekap_excel
-Download laporan Excel
-        """
-    )
+/excel
+Recap keuangan dalam bentuk excel.
+"""
+
+def user(event):
+
+    return event.sender_id == USER_ID
 
 
-@user
-async def masuk(update: Update, context):
+
+@client.on(events.NewMessage(pattern=r"^[/.!]start"))
+async def start(event):
+
+    if not user(event):
+        return
+
+
+    await event.reply(START_TEXT.format(event.sender.first_name, event.sender_id),
+        buttons=[[Button.inline("Bantuan", data="bantuan")]]
+)
+
+@client.on(events.NewMessage(pattern=r"^[/.!]help"))
+async def help(event):
+    
+    if not user(event):
+        return
+    
+   
+    await event.reply(HELP_TEXT,
+        buttons=[[Button.inline("Kembali", data="kembali")]]
+                     )
+
+@client.on(events.callbackquery.CallbackQuery(data="kembali"))
+async def bstart(event):
+     await event.edit(START_TEXT.format(event.sender.first_name, event.sender_id),
+            buttons=[[Button.inline("Bantuan", data="bantuan")]]
+                     )
+
+
+@client.on(events.callbackquery.CallbackQuery(data="bantuan"))
+async def bhelp(event):
+     await event.edit(HELP_TEXT,
+            buttons=[[Button.inline("Kembali", data="kembali")]]
+                     )
+
+
+
+@client.on(events.NewMessage(pattern=r"^[/.!]in"))
+async def masuk(event):
+
+    if not user(event):
+        return
+
 
     await simpan(
-        update,
-        context,
+        event,
         "MASUK"
     )
 
-@user
-async def keluar(update: Update, context):
+
+
+@client.on(events.NewMessage(pattern=r"^[/.!]out"))
+async def keluar(event):
+
+    if not user(event):
+        return
+
 
     await simpan(
-        update,
-        context,
+        event,
         "KELUAR"
     )
 
-@user
-async def simpan(update, context, tipe):
+
+
+async def simpan(event, tipe):
 
     try:
 
-        nominal = int(
-            context.args[0]
+        data = event.raw_text.split(
+            " ",
+            3
         )
 
-        kategori = context.args[1]
 
-        keterangan = " ".join(
-            context.args[2:]
-        )
+        nominal = int(data[1])
+
+        kategori = data[2]
+
+        keterangan = data[3]
+
 
         tambah_transaksi(
             tipe,
@@ -111,9 +145,10 @@ async def simpan(update, context, tipe):
             keterangan
         )
 
-        await update.message.reply_text(
-            f"""
-Transaksi berhasil disimpan.
+
+        await event.reply(
+f"""
+Berhasil disimpan.
 
 Jenis:
 {tipe}
@@ -126,29 +161,36 @@ Rp {nominal:,}
 """
         )
 
+
     except:
 
-        await update.message.reply_text(
-            """
+        await event.reply(
+"""
 Format salah.
 
 Contoh:
 
-/masuk 1000000 Gaji Gaji bulanan
-
-/keluar 50000 Makanan Makan siang
+/masuk 100000 Gaji Bonus
 """
         )
 
-@user
-async def laporan(update, context):
+
+
+
+@client.on(events.NewMessage(pattern="^[/.!]laporan"))
+async def laporan(event):
+
+    if not user(event):
+        return
+
 
     masuk, keluar = ambil_laporan_bulan()
 
     saldo = masuk - keluar
 
-    await update.message.reply_text(
-        f"""
+
+    await event.reply(
+f"""
 Laporan Bulan Ini
 
 Pemasukan:
@@ -162,64 +204,36 @@ Rp {saldo:,}
 """
     )
 
-@user
-async def rekap_excel(update, context):
+
+
+
+@client.on(events.NewMessage(pattern="^[/.!]excel"))
+async def excel(event):
+
+    if not user(event):
+        return
+
 
     file = buat_excel()
 
-    await update.message.reply_document(
-        document=open(file,"rb"),
-        filename=file
+
+    await client.send_file(
+        event.chat_id,
+        file,
+        caption="Rekap Keuangan"
     )
 
-def main():
 
+
+
+def main()
     buat_database()
+    print("Bot Bekerja Dengan Baik.")
 
-    app = Application.builder().token(
-        TOKEN
-    ).build()
+    client.start()
+    client.run_until_disconnected()
 
-    app.add_handler(
-        CommandHandler(
-            "start",
-            start
-        )
-    )
 
-    app.add_handler(
-        CommandHandler(
-            "masuk",
-            masuk
-        )
-    )
-
-    app.add_handler(
-        CommandHandler(
-            "keluar",
-            keluar
-        )
-    )
-
-    app.add_handler(
-        CommandHandler(
-            "laporan",
-            laporan
-        )
-    )
-
-    app.add_handler(
-        CommandHandler(
-            "rekap_excel",
-            rekap_excel
-        )
-    )
-
-    print(
-        "Bot berjalan..."
-    )
-
-    app.run_polling()
 
 if __name__=="__main__":
     main()
