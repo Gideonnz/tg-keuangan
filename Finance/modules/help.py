@@ -68,7 +68,7 @@ async def bhelp(event):
           )
 
 @client.on(events.callbackquery.CallbackQuery(data="bantuan2"))
-async def bhelp(event):
+async def chelp(event):
      await event.edit(HELP_TEXT2,
             buttons=
               [
