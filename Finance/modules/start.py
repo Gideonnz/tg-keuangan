@@ -5,7 +5,7 @@ START_TEXT = """
 **Hi [{}](tg://user?id={})!**
 
 Aku adalah Bot Pencatat Keuangan Kamu
-Saya Bisa Mencatat Pengeluaran dan Pemasukan Anda Hanya Dari Ketikan.
+Saya Bisa Mencatat Pengeluaran dan Pemasukan Anda Dari Ketikan dan Gambar.
 
 Klik Tombol Di Bawah Ini Untuk Menu Bantuan.
 """
@@ -18,5 +18,5 @@ async def start(event):
 
 
     await event.respond(START_TEXT.format(event.sender.first_name, event.sender_id),
-        buttons=[[Button.inline("Bantuan", data="bantuan")]]
+        buttons=[[Button.inline("Bantuan", data="bantuan1")]]
                        )
