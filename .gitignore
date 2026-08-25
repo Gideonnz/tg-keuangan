@@ -1,24 +1,4 @@
-# Python cache
-__pycache__/
-*.pyc
-
-# Virtual environment
-venv/
-env/
-
-# Environment secret
+*.session
+*.session-journal
 .env
-
-# Database lokal
 *.db
-
-# Excel hasil export
-*.xlsx
-
-# IDE
-.vscode/
-.idea/
-
-# OS
-.DS_Store
-Thumbs.db
