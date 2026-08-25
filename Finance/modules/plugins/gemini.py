@@ -1,17 +1,10 @@
 import json
-import google.generativeai as genai
+import google.genai as genai
 from Finance import GEMINI_API_KEY as GEMINI_KEY
 
 
-genai.configure(
-  api_key=GEMINI_KEY
-)
-
-
-model = genai.GenerativeModel(
-    "gemini-1.5-flash"
-)
-
+genai.configure(api_key=GEMINI_KEY)
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 
 def baca_transaksi_gambar(path):
