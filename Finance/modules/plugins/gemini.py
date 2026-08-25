@@ -1,4 +1,6 @@
-import json, logging, mimetypes
+import json
+import logging
+import mimetypes
 from google import genai
 from google.genai import types
 from google.genai.errors import APIError
@@ -22,17 +24,19 @@ def baca_transaksi_dokumen(path):
 
         prompt = """
 Anda adalah AI pencatat keuangan.
-Analisis dokumen atau bukti transaksi ini (bisa berupa foto, nota PDF, resi, atau teks).
+Analisis dokumen/file ini yang berisi satu atau BANYAK transaksi keuangan.
 
-Kembalikan JSON saja dengan struktur:
-{
- "tipe": "MASUK atau KELUAR",
- "nominal": angka,
- "kategori": "kategori transaksi",
- "keterangan": "deskripsi singkat"
-}
+Kembalikan ARRAY/LIST JSON yang berisi seluruh transaksi yang terdeteksi dengan struktur setiap objek:
+[
+  {
+   "tipe": "MASUK atau KELUAR",
+   "nominal": angka,
+   "kategori": "kategori transaksi",
+   "keterangan": "deskripsi singkat"
+  }
+]
 
-Jika tidak yakin, lakukan perkiraan terbaik.
+Jika hanya ada 1 transaksi, tetap kembalikan dalam bentuk list berisi 1 elemen.
 """
 
         config = types.GenerateContentConfig(
@@ -45,7 +49,14 @@ Jika tidak yakin, lakukan perkiraan terbaik.
             config=config
         )
 
-        return json.loads(response.text)
+        hasil = json.loads(response.text)
+
+        if isinstance(hasil, dict):
+            if "error" in hasil:
+                return hasil
+            hasil = [hasil]
+
+        return hasil
 
     except FileNotFoundError:
         logging.error(f"File dokumen tidak ditemukan pada path: {path}")
@@ -59,7 +70,10 @@ Jika tidak yakin, lakukan perkiraan terbaik.
         logging.error("Respons dari Gemini bukan merupakan JSON yang valid.")
         try:
             clean_text = response.text.replace("```json", "").replace("```", "").strip()
-            return json.loads(clean_text)
+            hasil = json.loads(clean_text)
+            if isinstance(hasil, dict):
+                hasil = [hasil]
+            return hasil
         except Exception:
             return {"error": "Gagal membaca format data transaksi"}
 
