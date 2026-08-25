@@ -1,7 +1,7 @@
 from telethon import events
 from Finance import client
 from Finance.status import user
-from Finance.database.transaksi import hapus transaksi
+from Finance.database.transaksi import hapus_transaksi
 
 @client.on(events.NewMessage(pattern="^[/.!]hapus_transaksi"))
 async def hapus(event):
