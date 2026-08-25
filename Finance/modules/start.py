@@ -21,3 +21,11 @@ async def start(event):
     await event.respond(START_TEXT.format(event.sender.first_name, event.sender_id),
         buttons=[[Button.inline("Bantuan", data="bantuan1")]]
                        )
+
+
+@client.on(events.CallbackQuery(data="kembali"))
+async def kembali(event):
+    
+    await event.respond(START_TEXT.format(event.sender.first_name, event.sender_id),
+        buttons=[[Button.inline("Bantuan", data="bantuan1")]]
+                       )
