@@ -118,7 +118,7 @@ async def all_transaksi(event):
         return
 
 
-    data = semua_transaksi()
+    data = semua_transaksi(event.sender_id)
 
 
     if not data:
@@ -145,7 +145,7 @@ async def all_transaksi(event):
 @client.on(events.CallbackQuery(pattern=b"next_"))
 async def next(event):
   
-    data = semua_transaksi()
+    data = semua_transaksi(event.sender_id)
 
 
     if not data:
@@ -191,7 +191,7 @@ async def next(event):
 @client.on(events.CallbackQuery(pattern=b"prev_"))
 async def prev(event):
 
-    data = semua_transaksi()
+    data = semua_transaksi(event.sender_id)
 
 
     if not data:
@@ -269,7 +269,8 @@ async def confirm_delete(event):
 
 
     berhasil = hapus_transaksi(
-        id_transaksi
+        id_transaksi,
+        event.sender_id
     )
 
 
@@ -349,6 +350,7 @@ async def proses_edit(event):
 
         berhasil = edit_transaksi(
             id_transaksi,
+            user_id,
             tipe,
             kategori,
             nominal,
