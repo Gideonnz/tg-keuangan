@@ -130,6 +130,48 @@ def total_transaksi():
 
     return total
 
+
+def edit_transaksi(
+    id_transaksi,
+    tipe,
+    kategori,
+    nominal,
+    keterangan
+):
+
+    conn = koneksi()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    UPDATE transaksi
+    SET
+        tipe=?,
+        kategori=?,
+        nominal=?,
+        keterangan=?
+    WHERE id=?
+    """,
+    (
+        tipe,
+        kategori,
+        nominal,
+        keterangan,
+        id_transaksi
+    ))
+
+    berhasil = cursor.rowcount > 0
+
+    conn.commit()
+    conn.close()
+
+
+    if berhasil:
+        hitung_ulang_saldo()
+
+
+    return berhasil
+
+
 def semua_transaksi():
 
     conn = koneksi()
