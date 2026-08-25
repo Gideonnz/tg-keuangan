@@ -1,9 +1,10 @@
 from telethon import events, Button
 from Finance import client
 from Finance.status import user
-from Finance.database.transaksi import semua_transaksi
+from Finance.database.transaksi import semua_transaksi, hapus transaksi, edit_transaksi
 
 halaman_all = {}
+edit_state = {}
 
 def format_transaksi(data, nomor, total):
 
@@ -58,6 +59,20 @@ async def tampilkan_semua(event, index, data):
 
 
     tombol = []
+
+    tombol.append(
+    [
+        Button.inline(
+            "✏️ Edit",
+            data=f"edit_{data[index][0]}".encode()
+        ),
+
+        Button.inline(
+            "🗑 Hapus",
+            data=f"delete_{data[index][0]}".encode()
+        )
+    ]
+    )
 
 
     navigasi = []
@@ -215,3 +230,154 @@ async def prev(event):
             ]
         ]
 )
+
+
+@client.on(events.CallbackQuery(pattern=b"delete_"))
+async def delete(event):
+
+    id_transaksi = int(
+        event.data.decode().split("_")[1]
+    )
+
+
+    await event.edit(
+        "⚠️ Yakin ingin menghapus transaksi ini?",
+        buttons=[
+            [
+                Button.inline(
+                    "✅ Ya",
+                    data=f"confirm_delete_{id_transaksi}".encode()
+                ),
+
+                Button.inline(
+                    "❌ Batal",
+                    data=b"cancel_delete"
+                )
+            ]
+        ]
+    )
+
+
+@client.on(events.CallbackQuery(pattern=b"confirm_delete_"))
+async def confirm_delete(event):
+
+    id_transaksi = int(
+        event.data.decode().split("_")[2]
+    )
+
+
+    berhasil = hapus_transaksi(
+        id_transaksi
+    )
+
+
+    if berhasil:
+
+        await event.edit(
+            "✅ Transaksi berhasil dihapus."
+        )
+
+    else:
+
+        await event.edit(
+            "❌ Transaksi tidak ditemukan."
+    )
+
+
+@client.on(events.CallbackQuery(pattern=b"cancel_delete"))
+async def cancel_delete(event):
+
+    await event.edit(
+        "❌ Penghapusan dibatalkan."
+    )
+
+
+@client.on(events.CallbackQuery(pattern=b"edit_"))
+async def edit(event):
+
+    id_transaksi = int(
+        event.data.decode().split("_")[1]
+    )
+
+    edit_state[event.sender_id] = id_transaksi
+
+    await event.respond(
+"""
+Kirim data baru.
+
+Format:
+
+JENIS NOMINAL KATEGORI KETERANGAN
+
+Contoh:
+
+MASUK 500000 GAJI Bonus bulanan
+"""
+)
+
+
+@client.on(events.NewMessage)
+async def proses_edit(event):
+
+    user_id = event.sender_id
+
+    if user_id not in edit_state:
+        return
+
+
+    try:
+
+        data = event.raw_text.split(
+            " ",
+            3
+        )
+
+
+        tipe = data[0].upper()
+
+        nominal = int(data[1])
+
+        kategori = data[2]
+
+        keterangan = data[3]
+
+
+        id_transaksi = edit_state[user_id]
+
+
+        berhasil = edit_transaksi(
+            id_transaksi,
+            tipe,
+            kategori,
+            nominal,
+            keterangan
+        )
+
+
+        del edit_state[user_id]
+
+
+        if berhasil:
+
+            await event.reply(
+                "✅ Transaksi berhasil diedit."
+            )
+
+        else:
+
+            await event.reply(
+                "❌ Gagal mengedit transaksi."
+            )
+
+
+    except:
+
+        await event.reply(
+"""
+Format salah.
+
+Contoh:
+
+MASUK 500000 GAJI Bonus
+"""
+        )
