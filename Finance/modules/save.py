@@ -1,5 +1,5 @@
 from telethon import events
-from Finance.database.transaksi import tambah_transaksi
+from Finance.database.transaksi_db import tambah_transaksi
 
 
 
