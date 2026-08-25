@@ -1,22 +1,18 @@
 import json
-import google.genai as genai
+from google import genai
+from google.genai import types
 from Finance import GEMINI_API_KEY as GEMINI_KEY
 
-
-genai.configure(api_key=GEMINI_KEY)
-model = genai.GenerativeModel("gemini-1.5-flash")
-
+client = genai.Client(api_key=GEMINI_KEY)
 
 def baca_transaksi_gambar(path):
+    with open(path, "rb") as f:
+        image_bytes = f.read()
 
-    image = {
-        "mime_type": "image/jpeg",
-        "data": open(
-            path,
-            "rb"
-        ).read()
-    }
-
+    image = types.Part.from_bytes(
+        data=image_bytes,
+        mime_type="image/jpeg",
+    )
 
     prompt = """
 Anda adalah AI pencatat keuangan.
@@ -26,35 +22,23 @@ Analisa gambar bukti transaksi.
 Kembalikan JSON saja:
 
 {
- "tipe":"MASUK atau KELUAR",
- "nominal":angka,
- "kategori":"kategori transaksi",
- "keterangan":"deskripsi singkat"
+ "tipe": "MASUK atau KELUAR",
+ "nominal": angka,
+ "kategori": "kategori transaksi",
+ "keterangan": "deskripsi singkat"
 }
 
 Jika tidak yakin, lakukan perkiraan terbaik.
-Jangan tambahkan teks lain.
 """
 
-
-    response = model.generate_content(
-        [
-            prompt,
-            image
-        ]
+    config = types.GenerateContentConfig(
+        response_mime_type="application/json"
     )
 
-
-    hasil = response.text
-
-
-    hasil = hasil.replace(
-        "```json",
-        ""
-    ).replace(
-        "```",
-        ""
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=[prompt, image],
+        config=config
     )
 
-
-    return json.loads(hasil)
+    return json.loads(response.text)
