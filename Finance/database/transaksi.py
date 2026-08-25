@@ -64,9 +64,16 @@ def semua_transaksi():
     cursor = conn.cursor()
 
     cursor.execute("""
-    SELECT tanggal, tipe, kategori, nominal, keterangan
+    SELECT
+        id,
+        tanggal,
+        tipe,
+        kategori,
+        nominal,
+        keterangan,
+        saldo_setelah
     FROM transaksi
-    ORDER BY id DESC
+    ORDER BY id ASC
     """)
 
     data = cursor.fetchall()
