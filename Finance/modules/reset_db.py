@@ -11,7 +11,7 @@ async def reset_db(event):
 
     
     await event.reply("Apakah Anda yakin ingin mereset database?\n\nSetelah dihapus database tidak dapat dipulihkan lagi.",
-         buttons=[[Button.inline("Reset Database", data="reset"), Button.inline("Batal", data="batal")]]
+         buttons=[[Button.inline("Reset Database", data="reset"), Button.inline("Batal", data="batall")]]
          )
 
 
@@ -23,7 +23,7 @@ async def breset(event):
 
                      Semua transaksi dan saldo telah di hapus.""")
 
-@client.on(events.callbackquery.CallbackQuery(data="batal"))
+@client.on(events.callbackquery.CallbackQuery(data="batall"))
 async def bbatal(event):
 
     await event.edit("Aksi telah dibatalkan.")
