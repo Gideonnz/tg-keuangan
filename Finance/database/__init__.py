@@ -26,12 +26,22 @@ def buat_database():
 
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS pengaturan (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER UNIQUE,
-    saldo_awal INTEGER
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER UNIQUE,
+        saldo_awal INTEGER
     )
     """)
 
 
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER UNIQUE,
+        nama TEXT,
+        tanggal_daftar TEXT
+    )
+    """)
+
+  
     conn.commit()
     conn.close()
