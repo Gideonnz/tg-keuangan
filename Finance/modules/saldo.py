@@ -19,6 +19,7 @@ async def saldo_awal(event):
 
 
         atur_saldo_awal(
+            event.sender_id,
             nominal
         )
 
