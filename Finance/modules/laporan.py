@@ -1,7 +1,7 @@
 from telethon import events
 from Finance import client
 from Finance.status import user
-from Finance.database.laporan import ambil_laporan_bulan
+from Finance.database.laporan_db import ambil_laporan_bulan
 
 @client.on(events.NewMessage(pattern="^[/.!]laporan"))
 async def laporan(event):
