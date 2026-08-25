@@ -57,7 +57,7 @@ async def help(event):
                      )
 
 
-@client.on(events.callbackquery.CallbackQuery(data="bantuan1"))
+@client.on(events.CallbackQuery(data="bantuan1"))
 async def bhelp(event):
      await event.edit(HELP_TEXT1,
             buttons=
@@ -67,12 +67,13 @@ async def bhelp(event):
               ]
           )
 
-@client.on(events.callbackquery.CallbackQuery(data="bantuan2"))
+@client.on(events.CallbackQuery(data="bantuan2"))
 async def chelp(event):
      await event.edit(HELP_TEXT2,
             buttons=
               [
-                Button.inline("⬅️", data="help1"),
+                Button.inline("⬅️", data="bantuan1"),
                 Button.inline("Kembali", data="kembali")
               ]
              )
+    
