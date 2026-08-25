@@ -2,4 +2,4 @@ telethon
 pandas
 openpyxl
 python-dotenv
-google-generativeai
+google-genai
