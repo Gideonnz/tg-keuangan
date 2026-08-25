@@ -226,7 +226,7 @@ async def excel(event):
 
 
 
-def main()
+def main():
     buat_database()
     print("Bot Bekerja Dengan Baik.")
 
