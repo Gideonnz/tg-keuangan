@@ -9,7 +9,9 @@ from database import (
     ambil_laporan_bulan,
     atur_saldo_awal,
     hapus_transaksi,
-    reset_database
+    reset_database,
+    cek_transaksi,
+    total_transaksi
 )
 
 from excel_export import buat_excel
@@ -60,6 +62,12 @@ Menghapus pengeluaran/pemasukan yang diinput.
 
 /reset_db
 Memghapus semua data di database.
+
+/cek_id
+Cek transaksi berdasarkan ID.
+
+/total_id
+Jumlah seluruh transaksi.
 """
 
 def user(event):
@@ -331,7 +339,7 @@ Contoh:
         )
 
 
-@client.on(events.NewMessage(pattern=r"^[/.!]reset_db"))
+@client.on(events.NewMessage(pattern="^[/.!]reset_db"))
 async def reset_db(event):
 
     if not user(event):
@@ -350,6 +358,112 @@ async def breset(event):
     await event.edit("""Database berhasil direset
 
                      Semua transaksi dan saldo telah di hapus.""")
+
+
+@client.on(events.NewMessage(pattern="^[/.!]cek_id"))
+async def cek_id(event):
+
+    if not user(event):
+        return
+
+
+    try:
+
+        data = event.raw_text.split()
+
+        id_transaksi = int(data[1])
+
+
+        transaksi = cek_transaksi(
+            id_transaksi
+        )
+
+
+        if transaksi:
+
+
+            (
+                id,
+                tanggal,
+                tipe,
+                kategori,
+                nominal,
+                keterangan,
+                saldo
+            ) = transaksi
+
+
+            await event.reply(
+f"""
+Detail Transaksi
+
+ID:
+{id}
+
+Tanggal:
+{tanggal}
+
+Tipe:
+{tipe}
+
+Kategori:
+{kategori}
+
+Nominal:
+Rp {nominal:,}
+
+Keterangan:
+{keterangan}
+
+Saldo Setelah:
+Rp {saldo:,}
+"""
+            )
+
+
+        else:
+
+            await event.reply(
+                "Transaksi tidak ditemukan."
+            )
+
+
+    except:
+
+        await event.reply(
+"""
+Format:
+
+/cek_id ID
+
+Contoh:
+
+/cek_id 10
+"""
+        )
+
+
+@client.on(events.NewMessage(pattern="^[/.!]total_id"))
+async def total_id(event):
+
+    if not user(event):
+        return
+
+
+    jumlah = total_transaksi()
+
+
+    await event.reply(
+f"""
+Total Transaksi:
+
+Jumlah ID:
+{jumlah}
+
+ID terakhir:
+{jumlah}
+"""
+    )
 
 
 @client.on(events.callbackquery.CallbackQuery(data="batal"))
