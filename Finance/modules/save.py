@@ -3,7 +3,7 @@ from Finance.database.transaksi_db import tambah_transaksi
 
 
 
-async def simpan(event, user_id, tipe):
+async def simpan(event, tipe):
 
     try:
 
@@ -21,7 +21,7 @@ async def simpan(event, user_id, tipe):
 
 
         saldo = tambah_transaksi(
-          user_id,
+          event.sender_id,
           tipe,
           kategori,
           nominal,
