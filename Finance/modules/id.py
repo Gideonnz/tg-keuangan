@@ -18,7 +18,8 @@ async def cek_id(event):
 
 
         transaksi = cek_transaksi(
-            id_transaksi
+            id_transaksi,
+            event.sender_id
         )
 
 
@@ -93,7 +94,7 @@ async def total_id(event):
         return
 
 
-    jumlah = total_transaksi()
+    jumlah = total_transaksi(event.sender_id)
 
 
     await event.reply(
