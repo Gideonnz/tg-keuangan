@@ -7,7 +7,9 @@ from database import (
     buat_database,
     tambah_transaksi,
     ambil_laporan_bulan,
-    atur_saldo_awal
+    atur_saldo_awal,
+    hapus_transaksi,
+    reset_database
 )
 
 from excel_export import buat_excel
@@ -38,6 +40,9 @@ Klik Tombol Di Bawah Ini Untuk Menu Bantuan.
 HELP_TEXT = """
 Daftar Perintah:
 
+/saldo
+Mengatur Saldo Awal
+
 /in nominal kategori keterangan
 Mencatat pemasukan.
 
@@ -49,6 +54,12 @@ Berisi laporan keuangan selama sebulan.
 
 /excel
 Recap keuangan dalam bentuk excel.
+
+/hapus_transaksi
+Menghapus pengeluaran/pemasukan yang diinput.
+
+/reset_db
+Memghapus semua data di database.
 """
 
 def user(event):
@@ -64,7 +75,7 @@ async def start(event):
         return
 
 
-    await event.reply(START_TEXT.format(event.sender.first_name, event.sender_id),
+    await event.respond(START_TEXT.format(event.sender.first_name, event.sender_id),
         buttons=[[Button.inline("Bantuan", data="bantuan")]]
 )
 
@@ -75,7 +86,7 @@ async def help(event):
         return
     
    
-    await event.reply(HELP_TEXT,
+    await event.respond(HELP_TEXT,
         buttons=[[Button.inline("Kembali", data="kembali")]]
                      )
 
@@ -269,6 +280,82 @@ async def excel(event):
     )
 
 
+@client.on(events.NewMessage(pattern="^[/.!]hapus_transaksi"))
+async def hapus(event):
+
+    if not user(event):
+        return
+
+
+    try:
+
+        data = event.raw_text.split()
+
+        id_transaksi = int(data[1])
+
+
+        hasil = hapus_transaksi(
+            id_transaksi
+        )
+
+
+        if hasil:
+
+            await event.respond(
+f"""
+Transaksi ID {id_transaksi} berhasil dihapus.
+"""
+            )
+
+        else:
+
+            await event.respond(
+"""
+ID transaksi tidak ditemukan.
+"""
+            )
+
+
+    except:
+
+        await event.respond(
+"""
+Format:
+
+/hapus_transaksi ID
+
+Contoh:
+
+/hapus_transaksi 15
+"""
+        )
+
+
+@client.on(events.NewMessage(pattern=r"^[/.!]reset_db"))
+async def reset_db(event):
+
+    if not user(event):
+        return
+
+
+     await event.reply("Apakah Anda yakin ingin mereset database?\n\nSetelah dihapus database tidak dapat dipulihkan lagi.",
+            buttons=[[Button.inline("Reset Database", data="reset", Button.inline("Batal", data="batal"))]]
+                     )
+
+
+@client.on(events.callbackquery.CallbackQuery(data="reset"))
+async def breset(event):
+    reset_database()
+
+    await event.edit("""Database berhasil direset
+
+                     Semua transaksi dan saldo telah di hapus.""")
+
+
+@client.on(events.callbackquery.CallbackQuery(data="batal"))
+async def bbatal(event):
+
+    await event.edit("Aksi telah dibatalkan.")
 
 
 def main():
