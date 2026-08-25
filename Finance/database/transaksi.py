@@ -58,6 +58,34 @@ def tambah_transaksi(
     return saldo
 
 
+def cek_transaksi(id_transaksi):
+
+    conn = koneksi()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT
+        id,
+        tanggal,
+        tipe,
+        kategori,
+        nominal,
+        keterangan,
+        saldo_setelah
+    FROM transaksi
+    WHERE id=?
+    """,
+    (id_transaksi,))
+
+
+    data = cursor.fetchone()
+
+    conn.close()
+
+    return data
+
+
+
 def semua_transaksi():
 
     conn = koneksi()
