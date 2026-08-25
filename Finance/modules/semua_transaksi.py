@@ -1,7 +1,7 @@
 from telethon import events, Button
 from Finance import client
 from Finance.status import user
-from Finance.database.transaksi import semua_transaksi, hapus transaksi, edit_transaksi
+from Finance.database.transaksi import semua_transaksi, hapus_transaksi, edit_transaksi
 
 halaman_all = {}
 edit_state = {}
