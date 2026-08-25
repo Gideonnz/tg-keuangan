@@ -6,7 +6,8 @@ from telethon import TelegramClient, events, Button
 from database import (
     buat_database,
     tambah_transaksi,
-    ambil_laporan_bulan
+    ambil_laporan_bulan,
+    atur_saldo_awal
 )
 
 from excel_export import buat_excel
@@ -138,11 +139,11 @@ async def simpan(event, tipe):
         keterangan = data[3]
 
 
-        tambah_transaksi(
-            tipe,
-            kategori,
-            nominal,
-            keterangan
+        saldo = tambah_transaksi(
+          tipe,
+          kategori,
+          nominal,
+          keterangan
         )
 
 
@@ -158,8 +159,11 @@ Kategori:
 
 Nominal:
 Rp {nominal:,}
+
+Sisa Saldo:
+Rp {saldo:,}
 """
-        )
+)
 
 
     except:
@@ -175,7 +179,48 @@ Contoh:
         )
 
 
+@client.on(events.NewMessage(pattern="^[/.!]saldo_awal"))
+async def saldo_awal(event):
 
+    if not user(event):
+        return
+
+
+    try:
+
+        data = event.raw_text.split()
+
+
+        nominal = int(data[1])
+
+
+        atur_saldo_awal(
+            nominal
+        )
+
+
+        await event.reply(
+f"""
+Saldo awal berhasil dibuat.
+
+Saldo awal:
+Rp {nominal:,}
+"""
+        )
+
+
+    except:
+
+        await event.reply(
+"""
+Format:
+
+/saldo 1000000
+
+Contoh:
+/saldo 5000000
+"""
+        )
 
 @client.on(events.NewMessage(pattern="^[/.!]laporan"))
 async def laporan(event):
