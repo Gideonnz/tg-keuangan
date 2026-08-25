@@ -13,5 +13,10 @@ def reset_database():
     DELETE FROM pengaturan
     """)
 
+    cursor.execute("""
+    DELETE FROM sqlite_sequence
+    WHERE name='transaksi'
+    """)
+
     conn.commit()
     conn.close()
