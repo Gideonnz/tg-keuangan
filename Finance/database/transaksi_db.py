@@ -1,6 +1,6 @@
 from datetime import datetime
 from . import koneksi
-from .saldo import saldo_sekarang, hitung_ulang_saldo
+from .saldo_db import saldo_sekarang, hitung_ulang_saldo
 
 def tambah_transaksi(
     user_id,
