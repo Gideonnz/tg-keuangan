@@ -1,5 +1,5 @@
 import pandas as pd
-from telthon import events
+from telethon import events
 from Finance import client
 from Finance.status import user
 from Finance.database.transaksi import semua_transaksi
