@@ -1,3 +1,4 @@
+from telethon import events
 from Finance import client
 from Finance.status import user
 from .plugins.gemini import baca_transaksi_gambar
