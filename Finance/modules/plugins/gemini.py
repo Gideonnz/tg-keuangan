@@ -1,5 +1,4 @@
-import json
-import logging
+import json, logging, mimetypes
 from google import genai
 from google.genai import types
 from google.genai.errors import APIError
@@ -7,19 +6,23 @@ from Finance import GEMINI_API_KEY as GEMINI_KEY
 
 client = genai.Client(api_key=GEMINI_KEY)
 
-def baca_transaksi_gambar(path):
+def baca_transaksi_dokumen(path):
     try:
-        with open(path, "rb") as f:
-            image_bytes = f.read()
+        mime_type, _ = mimetypes.guess_type(path)
+        if not mime_type:
+            mime_type = "application/octet-stream"
 
-        image = types.Part.from_bytes(
-            data=image_bytes,
-            mime_type="image/jpeg",
+        with open(path, "rb") as f:
+            file_bytes = f.read()
+
+        document_part = types.Part.from_bytes(
+            data=file_bytes,
+            mime_type=mime_type,
         )
 
         prompt = """
 Anda adalah AI pencatat keuangan.
-Analisa gambar bukti transaksi.
+Analisis dokumen atau bukti transaksi ini (bisa berupa foto, nota PDF, resi, atau teks).
 
 Kembalikan JSON saja dengan struktur:
 {
@@ -38,15 +41,15 @@ Jika tidak yakin, lakukan perkiraan terbaik.
 
         response = client.models.generate_content(
             model="gemini-3.6-flash",
-            contents=[prompt, image],
+            contents=[prompt, document_part],
             config=config
         )
 
         return json.loads(response.text)
 
     except FileNotFoundError:
-        logging.error(f"File gambar tidak ditemukan pada path: {path}")
-        return {"error": "File gambar tidak ditemukan"}
+        logging.error(f"File dokumen tidak ditemukan pada path: {path}")
+        return {"error": "File dokumen tidak ditemukan"}
 
     except APIError as e:
         logging.error(f"Error dari Gemini API: {e}")
