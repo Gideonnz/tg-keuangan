@@ -21,6 +21,7 @@ async def simpan(event, tipe):
 
 
         saldo = tambah_transaksi(
+          user_id,
           tipe,
           kategori,
           nominal,
