@@ -12,6 +12,7 @@ def ambil_laporan_bulan():
     SELECT tipe, SUM(nominal)
     FROM transaksi
     WHERE tanggal LIKE ?
+    WHERE user_id=?
     GROUP BY tipe
     """,
     (
