@@ -1,4 +1,5 @@
 import os
+from functools import wraps
 from telegram import Update
 from telegram.ext import (
     Application,
@@ -14,23 +15,50 @@ from database import (
 
 from excel_export import buat_excel
 
-TOKEN = "8436547168:AAG9S8KSgZ6y6RKjTixfooHYsvPWcCFYBTA"
+TOKEN = os.getenv("BOT_TOKEN")
+USER_ID = int(os.getenv("USER_ID"))
 
+def user(func):
+
+    @wraps(func)
+    async def wrapper(update, context):
+
+        if update.effective_user.id != USER_ID:
+
+            await update.message.reply_text(
+                "🚫 Akses Ditolak."
+            )
+
+            return
+
+        return await func(update, context)
+
+    return wrapper
+
+@user
 async def start(update: Update, context):
 
     await update.message.reply_text(
         """
 Halo! Saya Bot Keuangan Pribadi.
+Saya akan Mencatat Pemasukan dan Pengeluaran Anda.
 
+Ketik /help Untuk Melihat Perintah Yang Ada.
+        """
+    )
+
+@user
+async def help(update: Update, context):
+
+    await update.message.reply_text(
+        """
 Perintah:
 
 /masuk nominal kategori keterangan
-
 Contoh:
  /masuk 1000000 Gaji Gaji bulanan
 
 /keluar nominal kategori keterangan
-
 Contoh:
  /keluar 50000 Makanan Makan siang
 
@@ -40,8 +68,9 @@ Melihat saldo bulan ini
 /rekap_excel
 Download laporan Excel
         """
-    )
 
+
+@user
 async def masuk(update: Update, context):
 
     await simpan(
@@ -50,6 +79,7 @@ async def masuk(update: Update, context):
         "MASUK"
     )
 
+@user
 async def keluar(update: Update, context):
 
     await simpan(
@@ -58,6 +88,7 @@ async def keluar(update: Update, context):
         "KELUAR"
     )
 
+@user
 async def simpan(update, context, tipe):
 
     try:
@@ -108,6 +139,7 @@ Contoh:
 """
         )
 
+@user
 async def laporan(update, context):
 
     masuk, keluar = ambil_laporan_bulan()
@@ -129,6 +161,7 @@ Rp {saldo:,}
 """
     )
 
+@user
 async def rekap_excel(update, context):
 
     file = buat_excel()
