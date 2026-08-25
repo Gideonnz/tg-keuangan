@@ -337,10 +337,10 @@ async def reset_db(event):
     if not user(event):
         return
 
-
-     await event.reply("Apakah Anda yakin ingin mereset database?\n\nSetelah dihapus database tidak dapat dipulihkan lagi.",
-            buttons=[[Button.inline("Reset Database", data="reset", Button.inline("Batal", data="batal"))]]
-                     )
+    
+    await event.reply("Apakah Anda yakin ingin mereset database?\n\nSetelah dihapus database tidak dapat dipulihkan lagi.",
+         buttons=[[Button.inline("Reset Database", data="reset"), Button.inline("Batal", data="batal")]]
+         )
 
 
 @client.on(events.callbackquery.CallbackQuery(data="reset"))
