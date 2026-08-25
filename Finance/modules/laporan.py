@@ -4,13 +4,13 @@ from Finance.status import user
 from Finance.database.laporan_db import ambil_laporan_bulan
 
 @client.on(events.NewMessage(pattern="^[/.!]laporan"))
-async def laporan(event, user_id):
+async def laporan(event):
 
     if not user(event):
         return
 
 
-    masuk, keluar = ambil_laporan_bulan(user_id)
+    masuk, keluar = ambil_laporan_bulan(event.sender_id)
 
     saldo = masuk - keluar
 
