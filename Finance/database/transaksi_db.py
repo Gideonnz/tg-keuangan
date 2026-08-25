@@ -47,7 +47,7 @@ def tambah_transaksi(user_id, tipe, kategori, nominal, keterangan):
     return saldo
 
 
-def cek_transaksi(id_transaksi):
+def cek_transaksi(id_transaksi, user_id):
 
     conn = koneksi()
     cursor = conn.cursor()
@@ -64,7 +64,7 @@ def cek_transaksi(id_transaksi):
     FROM transaksi
     WHERE id=? AND user_id=?
     """,
-    (id_transaksi,))
+    (id_transaksi, user_id))
 
 
     data = cursor.fetchone()
@@ -100,7 +100,7 @@ def semua_transaksi(user_id):
 
     return data
 
-def hapus_transaksi(id_transaksi):
+def hapus_transaksi(id_transaksi, user_id):
 
     conn = koneksi()
     cursor = conn.cursor()
@@ -112,6 +112,7 @@ def hapus_transaksi(id_transaksi):
     """,
     (
         id_transaksi,
+        user_id
     ))
 
 
@@ -123,13 +124,13 @@ def hapus_transaksi(id_transaksi):
 
 
     if berhasil:
-        hitung_ulang_saldo()
+        hitung_ulang_saldo(user_id)
 
 
     return berhasil
 
 
-def total_transaksi():
+def total_transaksi(user_id):
 
     conn = koneksi()
     cursor = conn.cursor()
@@ -138,7 +139,8 @@ def total_transaksi():
     cursor.execute("""
     SELECT COUNT(*)
     FROM transaksi
-    """)
+    WHERE user_id=?
+    """, (user_id,))
 
 
     total = cursor.fetchone()[0]
@@ -151,6 +153,7 @@ def total_transaksi():
 
 def edit_transaksi(
     id_transaksi,
+    user_id,
     tipe,
     kategori,
     nominal,
@@ -174,7 +177,8 @@ def edit_transaksi(
         kategori,
         nominal,
         keterangan,
-        id_transaksi
+        id_transaksi,
+        user_id
     ))
 
     berhasil = cursor.rowcount > 0
@@ -184,7 +188,7 @@ def edit_transaksi(
 
 
     if berhasil:
-        hitung_ulang_saldo()
+        hitung_ulang_saldo(user_id)
 
 
     return berhasil
