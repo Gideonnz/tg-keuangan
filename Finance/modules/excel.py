@@ -2,7 +2,7 @@ import pandas as pd
 from telethon import events
 from Finance import client
 from Finance.status import user
-from Finance.database.transaksi import semua_transaksi
+from Finance.database.transaksi_db import semua_transaksi
 
 def buat_excel():
 
