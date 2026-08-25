@@ -207,3 +207,44 @@ def semua_transaksi():
     conn.close()
 
     return data
+
+def reset_database():
+
+    conn = koneksi()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    DELETE FROM transaksi
+    """)
+
+    cursor.execute("""
+    DELETE FROM pengaturan
+    """)
+
+    conn.commit()
+    conn.close()
+
+
+def hapus_transaksi(id_transaksi):
+
+    conn = koneksi()
+    cursor = conn.cursor()
+
+
+    cursor.execute(
+        """
+        DELETE FROM transaksi
+        WHERE id=?
+        """,
+        (id_transaksi,)
+    )
+
+
+    berhasil = cursor.rowcount > 0
+
+
+    conn.commit()
+    conn.close()
+
+
+    return berhasil
