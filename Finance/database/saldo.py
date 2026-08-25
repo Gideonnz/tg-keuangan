@@ -63,3 +63,59 @@ def saldo_sekarang():
         return terakhir[0]
 
     return saldo_awal
+
+
+def hitung_ulang_saldo():
+
+    conn = koneksi()
+    cursor = conn.cursor()
+
+
+    # Ambil saldo awal
+    cursor.execute("""
+    SELECT saldo_awal
+    FROM pengaturan
+    WHERE id=1
+    """)
+
+    data = cursor.fetchone()
+
+
+    saldo = 0
+
+    if data:
+        saldo = data[0]
+
+
+    cursor.execute("""
+    SELECT id, tipe, nominal
+    FROM transaksi
+    ORDER BY id ASC
+    """)
+
+
+    transaksi = cursor.fetchall()
+
+
+    for id, tipe, nominal in transaksi:
+
+        if tipe == "MASUK":
+            saldo += nominal
+
+        else:
+            saldo -= nominal
+
+
+        cursor.execute("""
+        UPDATE transaksi
+        SET saldo_setelah=?
+        WHERE id=?
+        """,
+        (
+            saldo,
+            id
+        ))
+
+
+    conn.commit()
+    conn.close()
