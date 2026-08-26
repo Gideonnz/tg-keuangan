@@ -1,7 +1,7 @@
 from datetime import datetime
 from . import koneksi
 
-def ambil_laporan_bulan():
+def ambil_laporan_bulan(user_id):
 
     conn = koneksi()
     cursor = conn.cursor()
